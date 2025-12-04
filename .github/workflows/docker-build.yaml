@@ -48,6 +48,9 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.ref == 'refs/heads/master' }}
           pull: true
+          # Enable BuildKit cache restore/save across workflow runs
+          cache-from: type=gha,scope=php-${{ matrix.php }}
+          cache-to: type=gha,mode=max,scope=php-${{ matrix.php }}
           tags: phpdockerio/php:${{ matrix.php }}-cli
           target: cli
 
@@ -58,5 +61,8 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.ref == 'refs/heads/master' }}
           pull: true
+          # Enable BuildKit cache restore/save across workflow runs
+          cache-from: type=gha,scope=php-${{ matrix.php }}
+          cache-to: type=gha,mode=max,scope=php-${{ matrix.php }}
           tags: phpdockerio/php:${{ matrix.php }}-fpm
           target: fpm
