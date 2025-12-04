@@ -17,86 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - name: php74
-            folder: php/7.4
-            arch: [ linux/amd64, linux/arm64, linux/arm/v7 ]
-            targets:
-              primary:
-                name: cli
-                tags: phpdockerio/php:7.4-cli,phpdockerio/php74-cli:latest
-              secondary:
-                name: fpm
-                tags: phpdockerio/php:7.4-fpm,phpdockerio/php74-fpm:latest
-              tertiary:
-                name: swoole
-                tags: phpdockerio/php74-swoole:latest
-
-          - name: php80
-            folder: php/8.0
-            arch: [ linux/amd64, linux/arm64, linux/arm/v7 ]
-            targets:
-              primary:
-                name: cli
-                tags: phpdockerio/php:8.0-cli,phpdockerio/php80-cli:latest
-              secondary:
-                name: fpm
-                tags: phpdockerio/php:8.0-fpm,phpdockerio/php80-fpm:latest
-              tertiary:
-                name: swoole
-                tags: phpdockerio/php80-swoole:latest
-
-          - name: php81
-            folder: php/8.1
-            arch: [ linux/amd64, linux/arm64, linux/arm/v7 ]
-            targets:
-              primary:
-                name: cli
-                tags: phpdockerio/php:8.1-cli
-              secondary:
-                name: fpm
-                tags: phpdockerio/php:8.1-fpm
-              tertiary: ~
-
-          - name: php82
-            folder: php/8.2
-            arch: [ linux/amd64, linux/arm64, linux/arm/v7 ]
-            targets:
-              primary:
-                name: cli
-                tags: phpdockerio/php:8.2-cli
-              secondary:
-                name: fpm
-                tags: phpdockerio/php:8.2-fpm
-              tertiary: ~
-
-          - name: php83
-            folder: php/8.3
-            arch: [ linux/amd64, linux/arm64, linux/arm/v7 ]
-            targets:
-              primary:
-                name: cli
-                tags: phpdockerio/php:8.3-cli
-              secondary:
-                name: fpm
-                tags: phpdockerio/php:8.3-fpm
-              tertiary: ~
-
-          - name: php84
-            folder: php/8.4
-            arch: [ linux/amd64, linux/arm64, linux/arm/v7 ]
-            targets:
-              primary:
-                name: cli
-                tags: phpdockerio/php:8.4-cli
-              secondary:
-                name: fpm
-                tags: phpdockerio/php:8.4-fpm
-              tertiary: ~
+        php: [ '8.1', '8.2', '8.3', '8.4' ]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Debug
         run: |
@@ -116,34 +41,28 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Primary container
+      - name: PHP CLI container
         uses: docker/build-push-action@v6
         with:
-          context: ${{ matrix.folder }}
-          platforms: ${{ join(matrix.arch, ',') }}
+          context: php/${{ matrix.php }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.ref == 'refs/heads/master' }}
           pull: true
-          tags: ${{ matrix.targets.primary.tags }}
-          target: ${{ matrix.targets.primary.name }}
+          # Enable BuildKit cache restore/save across workflow runs
+          cache-from: type=gha,scope=php-${{ matrix.php }}
+          cache-to: type=gha,mode=max,scope=php-${{ matrix.php }}
+          tags: phpdockerio/php:${{ matrix.php }}-cli
+          target: cli
 
-      - name: Secondary container
-        if: matrix.targets.secondary
+      - name: PHP FPM container
         uses: docker/build-push-action@v6
         with:
-          context: ${{ matrix.folder }}
-          platforms: ${{ join(matrix.arch, ',') }}
+          context: php/${{ matrix.php }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.ref == 'refs/heads/master' }}
           pull: true
-          tags: ${{ matrix.targets.secondary.tags }}
-          target: ${{ matrix.targets.secondary.name }}
-
-      - name: Tertiary container
-        if: matrix.targets.tertiary
-        uses: docker/build-push-action@v6
-        with:
-          context: ${{ matrix.folder }}
-          platforms: ${{ join(matrix.arch, ',') }}
-          push: ${{ github.ref == 'refs/heads/master' }}
-          pull: true
-          tags: ${{ matrix.targets.tertiary.tags }}
-          target: ${{ matrix.targets.tertiary.name }}
+          # Enable BuildKit cache restore/save across workflow runs
+          cache-from: type=gha,scope=php-${{ matrix.php }}
+          cache-to: type=gha,mode=max,scope=php-${{ matrix.php }}
+          tags: phpdockerio/php:${{ matrix.php }}-fpm
+          target: fpm
