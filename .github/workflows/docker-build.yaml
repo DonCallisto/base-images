@@ -28,7 +28,6 @@ jobs:
               secondary:
                 name: fpm
                 tags: phpdockerio/php:8.1-fpm
-              tertiary: ~
 
           - name: php82
             folder: php/8.2
@@ -40,7 +39,6 @@ jobs:
               secondary:
                 name: fpm
                 tags: phpdockerio/php:8.2-fpm
-              tertiary: ~
 
           - name: php83
             folder: php/8.3
@@ -52,7 +50,6 @@ jobs:
               secondary:
                 name: fpm
                 tags: phpdockerio/php:8.3-fpm
-              tertiary: ~
 
           - name: php84
             folder: php/8.4
@@ -64,7 +61,6 @@ jobs:
               secondary:
                 name: fpm
                 tags: phpdockerio/php:8.4-fpm
-              tertiary: ~
 
     steps:
       - name: Checkout
@@ -108,14 +104,3 @@ jobs:
           pull: true
           tags: ${{ matrix.targets.secondary.tags }}
           target: ${{ matrix.targets.secondary.name }}
-
-      - name: Tertiary container
-        if: matrix.targets.tertiary
-        uses: docker/build-push-action@v6
-        with:
-          context: ${{ matrix.folder }}
-          platforms: ${{ join(matrix.arch, ',') }}
-          push: ${{ github.ref == 'refs/heads/master' }}
-          pull: true
-          tags: ${{ matrix.targets.tertiary.tags }}
-          target: ${{ matrix.targets.tertiary.name }}
