@@ -2,8 +2,8 @@
 
 Repository of base images for [PHPDocker.io](http://phpdocker.io)-generated environments.
 
-Images are [built daily](https://github.com/phpdocker-io/base-images/actions/workflows/docker-build.yaml) to pick up
-the latest base image updates as well as available PHP versions.
+Images are [built daily](https://github.com/phpdocker-io/base-images/actions/workflows/docker-build.yaml) to pick up the
+latest base image updates as well as available PHP versions.
 
 ## PHP
 
